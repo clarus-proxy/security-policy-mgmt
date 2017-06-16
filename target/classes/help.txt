@@ -1,0 +1,45 @@
+USAGE
+
+clarus-spm <command> <arguments> <options>
+
+COMMANDS
+
+create <policyname>
+	Start definition of a new security policy with the given name. Returns a policyid.
+
+set_dataspace_endpoint <policyid> <protocolname> <port> <baseurl>
+	Define the endpoint of the dataspace (a dataspace is a virtual space linking the applications running on premises with the cloud services and on which the security policy is applied). The dataspace will support the specified <protocolname> and accessible on the specified <port> by the client applications. The optional <baseurl> can complete the endpoint URL. Returns the endpoint URL (e.g. <protocolscheme>://<hostname>:<port>/<baseurl>).
+
+set_attribute_type <policyid> <attributepath> <attributetype> <datatype>
+	Define data attributes regarding security policy: a data attribute is identified by <attributepath>, a path in the data structure or in the schema (e.g. ‘/<database>/<table>/<column>’ for a database column, ‘/<layer>/<property>’ for a feature property in a layer, ‘/<file>/<attribute>’ for a feature attribute in a shapefile) ; <attributetype> can be non_confidential, confidential, identifier, quasi_identifier ; <datatype> can be categoric, categoric_ordinal, numeric_discrete, numeric_continuous, geometric_object, etc. Usually, only data related to privacy and confidentiality need to be protected. If there is already an entry for <policyid> and <attributepath>, changes the value.
+
+set_data_usage <policyid> <datausage>
+	Set the data usage for the dataspace: <datausage> can be (1) data storage, (2) search in the cloud, (3) update in the cloud, (4) compute in the cloud. If no value is provided, the list of possible values is displayed on the console.
+
+set_protection_module <policyid> <protectionmodule>
+	Set the protection module to apply: <protectionmodule> can be anonymization, splitting, encryption, etc. If no value is provided, the list of possible values is displayed on the console, and the most appropriate protection module is highlighted. The list of possible values are given in a list of protection modules that could be applied according to the configuration defined in previous steps.
+
+set_protection_param <policyid> <attributetype> <protectionname> <param> <value>
+	Set the protection parameter for a given attribute type and a given protection: <attributetype> can be non_confidential, confidential, identifier, quasi_identifier ;  <protectionname> depends on the applied protection module (e.g. it can be suppression, k-anonymity, t-closeness, coarsening, etc. for anonymization). If no value is provided, the list of possible values is displayed on the console; <param> depends on the given protection name (e.g. it can be k for k-anonymity, t for t-closeness, radius for coarsening, etc.). If no value is provided, the list of possible values is displayed on the console.
+
+register <policyid> [-l, --login <name> [-p, --password <passwd> | -i <identityfile>]]
+	Register a security policy. The security manager must be identified (see options). The user is prompted for the credentials if they are not specified. Please note that a registered security policy cannot be modified.
+
+delete <policyid> [-l, --login <name> [-p, --password <passwd> | -i <identityfile>]]
+	Delete a security policy. If the security policy is registered, the security manager must be identified (see options). The user is prompted for the credentials if they are not specified.
+list [-l, --login <name> [-p, --password <passwd> | -i <identityfile>]]
+	List all the registered security policies. The security manager must be identified (see options). The user is prompted for the credentials if they are not specified.
+
+OPTIONS
+
+-h, --help
+	Shows a short usage summary
+
+-l, --login <name>
+	Specifies the user to log in as on the CLARUS system (required for the register, delete and list commands)
+
+-p, --password <passwd>
+	Specifies the password of the user to log in on the CLARUS system (required for the register, delete and list commands)
+	
+-i <identityfile>
+	Specifies the file from which the identity (private key) for CLARUS authentication is read (required for the register, delete and list commands).
