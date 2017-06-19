@@ -25,16 +25,21 @@ import java.util.HashSet;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CLARUSPolicyDAO{
 	// Singleton implementation
 	private static CLARUSPolicyDAO instance = null;
-	private Gson g;
-	private MongoDatabase db;
-	private MongoClient mongoClient;
+	private final Gson g;
+	private final MongoDatabase db;
+	private final MongoClient mongoClient;
 	private int instancesNumber;
 
 	private CLARUSPolicyDAO(){
+        // Correctly configure the log level
+        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+        mongoLogger.setLevel(Level.SEVERE); 
 		// Create the GsonBuilder Object
 		this.g = new GsonBuilder().setPrettyPrinting().create();
 		// Create a new client connecting to "localhost" on port 
@@ -63,7 +68,7 @@ public class CLARUSPolicyDAO{
 
 	public boolean savePolicy(Policy pol){
 		// Get the collection of BSON documents that contain the policies
-		MongoCollection<Document> collection = this.db.getCollection("policies");;
+		MongoCollection<Document> collection = this.db.getCollection("policies");
 
 		// Serialize the policy
 		String jsonPolicy = g.toJson(pol);
@@ -75,14 +80,13 @@ public class CLARUSPolicyDAO{
 
 	public Set<Policy> getPolicies(){
 		// Get the collection of BSON documents that contain the policies
-		MongoCollection<Document> collection = this.db.getCollection("policies");;
+		MongoCollection<Document> collection = this.db.getCollection("policies");
 
 		// Create the Set to contain the results
-		Set<Policy> result = new HashSet<Policy>();
+		Set<Policy> result = new HashSet<>();
 
 		// Find all policies
-		MongoCursor<Document> cursor = collection.find().iterator();
-		try{
+		try (MongoCursor<Document> cursor = collection.find().iterator()) {
 			while(cursor.hasNext()){
 				// Get the JSON representation of the Policy
 				String jsonPolicy = cursor.next().toJson();
@@ -91,8 +95,6 @@ public class CLARUSPolicyDAO{
 				// Add the policy to the result;
 				result.add(pol);
 			}
-		} finally{
-			cursor.close();
 		}
 
 		return result;
@@ -100,11 +102,11 @@ public class CLARUSPolicyDAO{
 
 	public boolean removePolicy(Policy pol){
 		// Get the collection of BSON documents that contain the policies
-		MongoCollection<Document> collection = this.db.getCollection("policies");;
+		MongoCollection<Document> collection = this.db.getCollection("policies");
 
 		// Delete the policy from the database;
 		long deleted = collection.deleteOne(eq("policyId", pol.getPolicyID())).getDeletedCount();
 
-		return deleted > 0 ? true : false;
+		return deleted > 0;
 	}
 }
