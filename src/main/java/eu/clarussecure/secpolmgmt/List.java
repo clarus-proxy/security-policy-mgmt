@@ -10,6 +10,7 @@ import eu.clarussecure.secpolmgmt.dao.CLARUSPolicyDAO;
 import eu.clarussecure.datamodel.Policy;
 import eu.clarussecure.datamodel.PolicyAttribute;
 import eu.clarussecure.datamodel.ProtectionAttributeType;
+import eu.clarussecure.proxy.access.SimpleMongoUserAccess;
 
 import java.util.Set;
 
@@ -47,9 +48,23 @@ public class List implements Command{
 			this.identityFilePath = System.console().readLine();
 		}
 
-		// System.out.println("LoginID = '" + this.loginID + "'");
-		// System.out.println("Password = '" + this.password + "'");
-		// System.out.println("IdentityFilePath = '" + this.identityFilePath + "'");
+        // Authenticate the user
+        SimpleMongoUserAccess auth = SimpleMongoUserAccess.getInstance();
+        if(!auth.identify(this.loginID)){
+            throw new CommandExecutionException("The user '" + this.loginID + "' was not found as a registered user.");
+        }
+        
+        if(!auth.authenticate(this.loginID, this.password)){
+            throw new CommandExecutionException("The authentication of the user '" + this.loginID + "' failed.");
+        }
+        
+        // Check is the user is authroized to execute this command
+        if(!auth.userProfile(this.loginID).equals("admin")){
+            throw new CommandExecutionException("The user '" + this.loginID + "' is not authorized to execute this command.");
+        }
+        
+        auth.deleteInstance();
+        // At this point, the user SHOULD be identified and authorized to execute this command
 
 		// FIXME - Review the implementation of this command
 		// NOTE: If a path for the identiy file is present, it will be used to identify the user even if a password was provided.

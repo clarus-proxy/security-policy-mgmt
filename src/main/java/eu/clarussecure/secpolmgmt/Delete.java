@@ -8,6 +8,7 @@ package eu.clarussecure.secpolmgmt;
 import eu.clarussecure.secpolmgmt.dao.CLARUSPolicyDAO;
 
 import eu.clarussecure.datamodel.Policy;
+import eu.clarussecure.proxy.access.SimpleMongoUserAccess;
 
 import java.util.Set;
 
@@ -26,18 +27,6 @@ public class Delete implements Command{
 	}
 
 	public CommandReturn execute(Set<Policy> policies) throws CommandExecutionException{
-		// First, find the policy
-		Policy policy = null;
-
-		for (Policy p : policies)
-			if (p.getPolicyID() == this.policyID)
-				policy = p;
-
-		if (policy == null)
-			throw new CommandExecutionException("The policy with ID " + this.policyID + " could not be found!");
-
-		// TODO - Check if the policy has been registered or not. If not, simply delete the policy from the file (?)
-
 		// Check if there's any missing information
 		while(this.loginID.equals("")){
 			// Ask the user for the loginID
@@ -57,10 +46,36 @@ public class Delete implements Command{
 			System.out.print("Identity File path:");
 			this.identityFilePath = System.console().readLine();
 		}
+        
+        // Authenticate the user
+        SimpleMongoUserAccess auth = SimpleMongoUserAccess.getInstance();
+        if(!auth.identify(this.loginID)){
+            throw new CommandExecutionException("The user '" + this.loginID + "' was not found as a registered user.");
+        }
+        
+        if(!auth.authenticate(this.loginID, this.password)){
+            throw new CommandExecutionException("The authentication of the user '" + this.loginID + "' failed.");
+        }
+        
+        // Check is the user is authroized to execute this command
+        if(!auth.userProfile(this.loginID).equals("admin")){
+            throw new CommandExecutionException("The user '" + this.loginID + "' is not authorized to execute this command.");
+        }
+        
+        auth.deleteInstance();
+        // At this point, the user SHOULD be identified and authorized to execute this command
+        
+		// Find the policy
+		Policy policy = null;
 
-		// System.out.println("LoginID = '" + this.loginID + "'");
-		// System.out.println("Password = '" + this.password + "'");
-		// System.out.println("IdentityFilePath = '" + this.identityFilePath + "'");
+		for (Policy p : policies)
+			if (p.getPolicyID() == this.policyID)
+				policy = p;
+
+		if (policy == null)
+			throw new CommandExecutionException("The policy with ID " + this.policyID + " could not be found!");
+
+		// TODO - Check if the policy has been registered or not. If not, simply delete the policy from the file (?)
 
 		// FIXME - Validate the behavior of this command
 		// NOTE: If a path for the identiy file is present, it will be used to identify the user even if a password was provided.
