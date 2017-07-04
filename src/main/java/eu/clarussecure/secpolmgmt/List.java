@@ -49,8 +49,7 @@ public class List extends Command {
         for (Policy p : policies) {
             System.out.println("ID = " + p.getPolicyID() + ", name = " + p.getPolicyName());
 
-            System.out.println("Endpoint = " + p.getEndpoint().getProtocol() + ", port = " + p.getEndpoint().getPort()
-                    + ", baseURL = " + p.getEndpoint().getBaseUrl());
+            System.out.println("Endpoint = " + p.getEndpoint().getProtocol() + ", port = " + p.getEndpoint().getPort());
 
             for (PolicyAttribute a : p.getAttributes())
                 System.out.println("\tattribute: path = " + a.getPath() + ", type = " + a.getAttributeType()
@@ -61,9 +60,9 @@ public class List extends Command {
             for (ProtectionAttributeType pa : p.getProtection().getAttributeTypes()) {
                 System.out.println("\t\tProtection = " + pa.getProtection() + ", type = " + pa.getType());
 
-                if (pa.getParameter() != null) {
-                    System.out.println("\t\t\tParamName = " + pa.getParameter().getParam() + ", ParamValue = "
-                            + pa.getParameter().getValue());
+                if (pa.getParameters() != null) {
+                    System.out.println("\t\t\tParamName = " + pa.getParameters().getParam() + ", ParamValue = "
+                            + pa.getParameters().getValue());
                 } else {
                     System.out.println("\t\t\t----");
                 }

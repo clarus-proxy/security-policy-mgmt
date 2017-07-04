@@ -55,11 +55,18 @@ public class SetProtectionModule extends Command {
 
         // Third, identify the CLARUS Protection Module
         try {
-            this.protectionModule = Module.fromString(args[2].toLowerCase());
+            // Load the installed modules.
+            Module.initialize();
+            // Validate the name of the module
+            if (!Module.isValidModule(args[2].toLowerCase())) {
+                throw new IllegalArgumentException();
+            }
+
+            this.protectionModule = new Module(args[2].toLowerCase());
         } catch (IllegalArgumentException e) {
             throw new CommandParserException(
                     "There was an error idenfitying the CLARUS Protection Module. Is the Module '" + args[2]
-                            + "' supported?\nThe list of supported modules is:\n" + Arrays.toString(Module.values()));
+                            + "' supported?\nThe list of supported modules is:\n" + Module.getModulesAsString());
         } catch (IndexOutOfBoundsException e) {
             throw new CommandParserException("The field 'protectionModule' was not given and it is required.");
         }

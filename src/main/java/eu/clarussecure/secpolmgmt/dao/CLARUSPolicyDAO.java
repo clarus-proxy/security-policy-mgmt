@@ -1,14 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.clarussecure.secpolmgmt.dao;
-
-/**
- *
- * @author diegorivera
- */
 
 import eu.clarussecure.datamodel.Policy;
 
@@ -51,13 +41,13 @@ public class CLARUSPolicyDAO {
         this.instancesNumber++;
     }
 
-    public static CLARUSPolicyDAO getInstance() {
+    public synchronized static CLARUSPolicyDAO getInstance() {
         if (CLARUSPolicyDAO.instance == null)
             CLARUSPolicyDAO.instance = new CLARUSPolicyDAO();
         return CLARUSPolicyDAO.instance;
     }
 
-    public void deleteInstance() {
+    public synchronized void deleteInstance() {
         this.instancesNumber--;
 
         if (this.instancesNumber <= 0) {

@@ -31,7 +31,7 @@ public class SetDataspaceEndpoint extends Command {
             throw new CommandExecutionException("The policy with ID " + this.policyID + " could not be found!");
 
         // Second, create the Endpoint object
-        Endpoint e = new Endpoint(this.protocolName, this.port, this.baseURL);
+        Endpoint e = new Endpoint(this.protocolName, this.port);
 
         // Third, set the Endopoint to the Policy
         policy.setEndpoint(e);
@@ -60,10 +60,13 @@ public class SetDataspaceEndpoint extends Command {
 
         // Third, check that the protocol is present and it is a supported protocol
         try {
-            this.protocolName = Protocol.fromString(args[2].toLowerCase());
+            if (!Protocol.isValidProtocol(args[2].toLowerCase())) {
+                throw new IllegalArgumentException();
+            }
+            this.protocolName = new Protocol(args[2].toLowerCase());
         } catch (IllegalArgumentException e) {
             throw new CommandParserException("There was an error idenfitying the protocol. Is the protocol '" + args[2]
-                    + "' supported?\nThe list of supported protocols is:\n" + Arrays.toString(Protocol.values()));
+                    + "' supported?\nThe list of supported protocols is:\n" + Protocol.getProtocolNamesAsList());
         } catch (IndexOutOfBoundsException e) {
             throw new CommandParserException("The field 'protocolName' was not given and it is required.");
         }
