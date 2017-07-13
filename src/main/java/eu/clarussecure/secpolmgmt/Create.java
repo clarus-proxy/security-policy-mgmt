@@ -1,8 +1,7 @@
 package eu.clarussecure.secpolmgmt;
 
 import eu.clarussecure.datamodel.Policy;
-
-import java.util.Set;
+import eu.clarussecure.secpolmgmt.dao.CLARUSPolicyDAO;
 
 public class Create extends Command {
 
@@ -13,24 +12,20 @@ public class Create extends Command {
     }
 
     @Override
-    public CommandReturn execute(Set<Policy> policies) throws CommandExecutionException {
+    public CommandReturn execute(Policy policy) throws CommandExecutionException {
         // Compute the new Policy ID
         // FIXME !!!
         // At the moment this is the LARGEST id of the set (i.e., the ones in the file) + 1.
 
-        int id = -1;
-
-        for (Policy p : policies)
-            id = p.getPolicyID() > id ? p.getPolicyID() : id;
-        id++;
+        CLARUSPolicyDAO dao = CLARUSPolicyDAO.getInstance();
+        int id = dao.getLastPolicyID() + 1;
+        dao.deleteInstance();
 
         // Create new Policy object and add it to the policies set
         Policy pol = new Policy(id, this.newPolicyname);
 
-        policies.add(pol);
-
         // Prepare the return value
-        return new CommandReturn(0, "The ID of the policy created is " + id);
+        return new CommandReturn(0, "The ID of the policy created is " + id, pol);
     }
 
     @Override

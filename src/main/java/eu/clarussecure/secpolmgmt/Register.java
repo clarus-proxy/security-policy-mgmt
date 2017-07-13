@@ -3,8 +3,6 @@ package eu.clarussecure.secpolmgmt;
 import eu.clarussecure.datamodel.Policy;
 import eu.clarussecure.secpolmgmt.dao.CLARUSPolicyDAO;
 
-import java.util.Set;
-
 public class Register extends Command {
     private int policyID;
 
@@ -13,19 +11,18 @@ public class Register extends Command {
     }
 
     @Override
-    public CommandReturn execute(Set<Policy> policies) throws CommandExecutionException {
+    public CommandReturn execute(Policy policy) throws CommandExecutionException {
         this.verifyRights("admin");
         // At this point, the user SHOULD be identified and authorized to execute this command
-
-        // Find the policy
-        Policy policy = null;
-
-        for (Policy p : policies)
-            if (p.getPolicyID() == this.policyID)
-                policy = p;
+        // Verify the given policy ID with the one in the file
+        if (this.policyID != policy.getPolicyID()) {
+            throw new CommandExecutionException("The given policy ID " + this.policyID
+                    + " does not correspond with the policy ID in the file (" + policy.getPolicyID() + ").");
+        }
 
         if (policy == null)
-            throw new CommandExecutionException("The policy with ID " + this.policyID + " could not be found!");
+            throw new CommandExecutionException(
+                    "The policy with ID" + this.policyID + " could not be read from the file!");
 
         // Validate the policy;
         if (!policy.checkPolicyIntegrity()) {
@@ -41,7 +38,8 @@ public class Register extends Command {
         dao.savePolicy(policy);
         dao.deleteInstance();
 
-        CommandReturn cr = new CommandReturn(0, "The policy ID " + policy.getPolicyID() + " was correctly registered.");
+        CommandReturn cr = new CommandReturn(0, "The policy ID " + policy.getPolicyID() + " was correctly registered.",
+                null);
         return cr;
     }
 

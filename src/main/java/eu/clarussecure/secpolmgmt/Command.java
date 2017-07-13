@@ -3,14 +3,12 @@ package eu.clarussecure.secpolmgmt;
 import eu.clarussecure.datamodel.Policy;
 import eu.clarussecure.proxy.access.SimpleMongoUserAccess;
 
-import java.util.Set;
-
 public abstract class Command {
     protected String loginID = "";
     protected String password = "";
     protected String identityFilePath = "";
 
-    public abstract CommandReturn execute(Set<Policy> policies) throws CommandExecutionException;
+    public abstract CommandReturn execute(Policy policy) throws CommandExecutionException;
 
     public abstract boolean parseCommandArgs(String[] args) throws CommandParserException;
 

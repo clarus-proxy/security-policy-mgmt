@@ -4,31 +4,23 @@ import eu.clarussecure.datamodel.types.Protocol;
 import eu.clarussecure.datamodel.Policy;
 import eu.clarussecure.datamodel.Endpoint;
 
-import java.util.Set;
-import java.util.Arrays;
-
 public class SetDataspaceEndpoint extends Command {
 
     private int policyID = -1;
     private int port = -1;
     private Protocol protocolName = null;
-    private String baseURL = "";
 
     public SetDataspaceEndpoint(String[] args) throws CommandParserException {
         this.parseCommandArgs(args);
     }
 
     @Override
-    public CommandReturn execute(Set<Policy> policies) throws CommandExecutionException {
-        // First, find the policy
-        Policy policy = null;
-
-        for (Policy p : policies)
-            if (p.getPolicyID() == this.policyID)
-                policy = p;
-
-        if (policy == null)
-            throw new CommandExecutionException("The policy with ID " + this.policyID + " could not be found!");
+    public CommandReturn execute(Policy policy) throws CommandExecutionException {
+        // Verify the given policy ID with the one in the file
+        if (this.policyID != policy.getPolicyID()) {
+            throw new CommandExecutionException("The given policy ID " + this.policyID
+                    + " does not correspond with the policy ID in the file (" + policy.getPolicyID() + ").");
+        }
 
         // Second, create the Endpoint object
         Endpoint e = new Endpoint(this.protocolName, this.port);
@@ -37,7 +29,8 @@ public class SetDataspaceEndpoint extends Command {
         policy.setEndpoint(e);
 
         // Finally, prepare the return
-        CommandReturn cr = new CommandReturn(0, "Endpoint set succesfully. The Endpoint URL is: " + e.getEndpointURL());
+        CommandReturn cr = new CommandReturn(0, "Endpoint set succesfully. The Endpoint URL is: " + e.getEndpointURL(),
+                policy);
         return cr;
     }
 
@@ -80,11 +73,6 @@ public class SetDataspaceEndpoint extends Command {
         } catch (IndexOutOfBoundsException e) {
             throw new CommandParserException("The field 'port' was not given and it is required.");
         }
-
-        try {
-            this.baseURL = args[4];
-        } catch (IndexOutOfBoundsException e) {
-        } // This exception is not fatal. It means the baseURL is not provided.
 
         return true;
     }

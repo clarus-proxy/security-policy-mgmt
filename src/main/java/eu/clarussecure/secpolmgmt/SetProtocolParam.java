@@ -2,7 +2,6 @@ package eu.clarussecure.secpolmgmt;
 
 import eu.clarussecure.datamodel.Policy;
 import eu.clarussecure.datamodel.ProtocolParam;
-import java.util.Set;
 
 public class SetProtocolParam extends Command {
     private int policyID;
@@ -14,16 +13,12 @@ public class SetProtocolParam extends Command {
     }
 
     @Override
-    public CommandReturn execute(Set<Policy> policies) throws CommandExecutionException {
-        // First, find the policy
-        Policy policy = null;
-
-        for (Policy p : policies)
-            if (p.getPolicyID() == this.policyID)
-                policy = p;
-
-        if (policy == null)
-            throw new CommandExecutionException("The policy with ID " + this.policyID + " could not be found!");
+    public CommandReturn execute(Policy policy) throws CommandExecutionException {
+        // Verify the given policy ID with the one in the file
+        if (this.policyID != policy.getPolicyID()) {
+            throw new CommandExecutionException("The given policy ID " + this.policyID
+                    + " does not correspond with the policy ID in the file (" + policy.getPolicyID() + ").");
+        }
 
         // Second, create the ProtocolParam object
         ProtocolParam param = new ProtocolParam(this.paramName, this.paramValue);
@@ -31,7 +26,8 @@ public class SetProtocolParam extends Command {
         // Attach the ProtocolParam to the Endpoint
         policy.getEndpoint().addParameter(param);
 
-        CommandReturn cr = new CommandReturn(0, "The Policy ID " + policy.getPolicyID() + " was updated sucessfully");
+        CommandReturn cr = new CommandReturn(0, "The Policy ID " + policy.getPolicyID() + " was updated sucessfully",
+                policy);
         return cr;
     }
 
@@ -61,7 +57,7 @@ public class SetProtocolParam extends Command {
 
         // Fourth, extract the name of the parameter
         try {
-            this.paramName = args[3];
+            this.paramValue = args[3];
         } catch (IndexOutOfBoundsException e) {
             throw new CommandParserException("The field 'paramValue' was not given and it is required.");
         }

@@ -15,6 +15,7 @@ import java.util.HashSet;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mongodb.client.model.Sorts;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -90,12 +91,29 @@ public class CLARUSPolicyDAO {
         return result;
     }
 
-    public boolean removePolicy(Policy pol) {
+    public int getLastPolicyID() {
+        int policyID = 0;
+        // Get the collection of BSON documents that contain the policies
+        MongoCollection<Document> collection = this.db.getCollection("policies");
+        MongoCursor<Document> iterator = collection.find().sort(Sorts.descending("policyID")).limit(1).iterator();
+
+        while (iterator.hasNext()) {
+            Document doc = iterator.next();
+
+            if (doc == null)
+                break;
+            policyID = doc.getInteger("policyId");
+        }
+
+        return policyID;
+    }
+
+    public boolean removePolicy(int polID) {
         // Get the collection of BSON documents that contain the policies
         MongoCollection<Document> collection = this.db.getCollection("policies");
 
         // Delete the policy from the database;
-        long deleted = collection.deleteOne(eq("policyId", pol.getPolicyID())).getDeletedCount();
+        long deleted = collection.deleteOne(eq("policyId", polID)).getDeletedCount();
 
         return deleted > 0;
     }

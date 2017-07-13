@@ -5,7 +5,6 @@ import eu.clarussecure.datamodel.types.DataType;
 import eu.clarussecure.datamodel.Policy;
 import eu.clarussecure.datamodel.PolicyAttribute;
 
-import java.util.Set;
 import java.util.Arrays;
 
 public class SetAttributeType extends Command {
@@ -19,18 +18,13 @@ public class SetAttributeType extends Command {
     }
 
     @Override
-    public CommandReturn execute(Set<Policy> policies) throws CommandExecutionException {
+    public CommandReturn execute(Policy policy) throws CommandExecutionException {
+        // Verify the given policy ID with the one in the file
+        if (this.policyID != policy.getPolicyID()) {
+            throw new CommandExecutionException("The given policy ID " + this.policyID
+                    + " does not correspond with the policy ID in the file (" + policy.getPolicyID() + ").");
+        }
         String message = "";
-
-        // First, find the policy
-        Policy policy = null;
-
-        for (Policy p : policies)
-            if (p.getPolicyID() == this.policyID)
-                policy = p;
-
-        if (policy == null)
-            throw new CommandExecutionException("The policy with ID " + this.policyID + " could not be found!");
 
         // Second, check if there's an attribute for the path
         boolean updated = false;
@@ -53,7 +47,7 @@ public class SetAttributeType extends Command {
         }
 
         // Finally, prepare the return
-        CommandReturn cr = new CommandReturn(0, message);
+        CommandReturn cr = new CommandReturn(0, message, policy);
         return cr;
     }
 

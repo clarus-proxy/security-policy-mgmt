@@ -3,7 +3,6 @@ package eu.clarussecure.secpolmgmt;
 import eu.clarussecure.secpolmgmt.dao.CLARUSPolicyDAO;
 
 import eu.clarussecure.datamodel.Policy;
-import eu.clarussecure.datamodel.PolicyAttribute;
 import eu.clarussecure.datamodel.ProtectionAttributeType;
 
 import java.util.Set;
@@ -15,7 +14,7 @@ public class List extends Command {
     }
 
     @Override
-    public CommandReturn execute(Set<Policy> policies) throws CommandExecutionException {
+    public CommandReturn execute(Policy policy) throws CommandExecutionException {
         this.verifyRights("admin");
         // At this point, the user SHOULD be identified and authorized to execute this command
 
@@ -30,7 +29,7 @@ public class List extends Command {
 
         List.printPolicies(pols);
 
-        CommandReturn cr = new CommandReturn(0, "");
+        CommandReturn cr = new CommandReturn(0, "", policy);
         return cr;
     }
 
@@ -46,23 +45,34 @@ public class List extends Command {
     }
 
     static public void printPolicies(Set<Policy> policies) throws UnsupportedOperationException {
-        for (Policy p : policies) {
-            System.out.println("ID = " + p.getPolicyID() + ", name = " + p.getPolicyName());
+        for (Policy pol : policies) {
+            System.out.println("ID = " + pol.getPolicyID() + ", name = " + pol.getPolicyName() + ", usage = "
+                    + pol.getDataUsage());
 
-            System.out.println("Endpoint = " + p.getEndpoint().getProtocol() + ", port = " + p.getEndpoint().getPort());
+            System.out.println("\tEndpoint: Protocol Name = " + pol.getEndpoint().getProtocol().getProtocolName()
+                    + ", port = " + pol.getEndpoint().getPort());
 
-            for (PolicyAttribute a : p.getAttributes())
-                System.out.println("\tattribute: path = " + a.getPath() + ", type = " + a.getAttributeType()
-                        + ", datatype = " + a.getDataType());
+            pol.getEndpoint().getParameters().forEach((param) -> {
+                System.out.println("\t\tParameter: name = " + param.getParam() + ", value = " + param.getValue());
+            });
 
-            System.out.println("\tModule = " + p.getProtection().getModule());
+            System.out.println("\tAttributes:");
 
-            for (ProtectionAttributeType pa : p.getProtection().getAttributeTypes()) {
+            pol.getAttributes().forEach((attrib) -> {
+                System.out.println("\t\tattribute: path = " + attrib.getPath() + ", type = " + attrib.getAttributeType()
+                        + ", datatype = " + attrib.getDataType());
+            });
+
+            System.out.println("\tModule = " + pol.getProtection().getModule().getClarusModuleName());
+
+            for (ProtectionAttributeType pa : pol.getProtection().getAttributeTypes()) {
                 System.out.println("\t\tProtection = " + pa.getProtection() + ", type = " + pa.getType());
 
                 if (pa.getParameters() != null) {
-                    System.out.println("\t\t\tParamName = " + pa.getParameters().getParam() + ", ParamValue = "
-                            + pa.getParameters().getValue());
+                    pa.getParameters().forEach((protParam) -> {
+                        System.out.println("\t\t\tParameter: name = " + protParam.getParam() + ", value = "
+                                + protParam.getValue());
+                    });
                 } else {
                     System.out.println("\t\t\t----");
                 }

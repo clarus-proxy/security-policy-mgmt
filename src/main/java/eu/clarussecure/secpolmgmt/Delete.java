@@ -4,8 +4,6 @@ import eu.clarussecure.secpolmgmt.dao.CLARUSPolicyDAO;
 
 import eu.clarussecure.datamodel.Policy;
 
-import java.util.Set;
-
 public class Delete extends Command {
     private int policyID;
 
@@ -14,31 +12,19 @@ public class Delete extends Command {
     }
 
     @Override
-    public CommandReturn execute(Set<Policy> policies) throws CommandExecutionException {
+    public CommandReturn execute(Policy policy) throws CommandExecutionException {
         this.verifyRights("admin");
-
-        // Find the policy
-        Policy policy = null;
-
-        for (Policy p : policies)
-            if (p.getPolicyID() == this.policyID)
-                policy = p;
-
-        if (policy == null)
-            throw new CommandExecutionException("The policy with ID " + this.policyID + " could not be found!");
 
         // TODO - Check if the policy has been registered or not. If not, simply delete the policy from the file (?)
 
         // FIXME - Validate the behavior of this command
         // NOTE: If a path for the identiy file is present, it will be used to identify the user even if a password was provided.
-        // Too many doubts about what "registering" a policy means...
-        // Do they need to comunicate the configuration? To whom? Afterwards, does the policy need to be deleted from the file?
 
         CLARUSPolicyDAO dao = CLARUSPolicyDAO.getInstance();
-        dao.removePolicy(policy);
+        dao.removePolicy(this.policyID);
         dao.deleteInstance();
 
-        CommandReturn cr = new CommandReturn(0, "The policy ID " + policy.getPolicyID() + " was successfully deleted.");
+        CommandReturn cr = new CommandReturn(0, "The policy ID " + this.policyID + " was successfully deleted.", null);
         return cr;
     }
 

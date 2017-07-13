@@ -3,7 +3,6 @@ package eu.clarussecure.secpolmgmt;
 import eu.clarussecure.datamodel.types.Usage;
 import eu.clarussecure.datamodel.Policy;
 
-import java.util.Set;
 import java.util.Arrays;
 
 public class SetDataUsage extends Command {
@@ -16,22 +15,18 @@ public class SetDataUsage extends Command {
     }
 
     @Override
-    public CommandReturn execute(Set<Policy> policies) throws CommandExecutionException {
-        // First, find the policy
-        Policy policy = null;
-
-        for (Policy p : policies)
-            if (p.getPolicyID() == this.policyID)
-                policy = p;
-
-        if (policy == null)
-            throw new CommandExecutionException("The policy with ID " + this.policyID + " could not be found!");
+    public CommandReturn execute(Policy policy) throws CommandExecutionException {
+        // Verify the given policy ID with the one in the file
+        if (this.policyID != policy.getPolicyID()) {
+            throw new CommandExecutionException("The given policy ID " + this.policyID
+                    + " does not correspond with the policy ID in the file (" + policy.getPolicyID() + ").");
+        }
 
         // Second, set the data usage
         policy.setDataUsage(this.dataUsage);
 
         CommandReturn cr = new CommandReturn(0,
-                "The usage for policy ID " + policy.getPolicyID() + " was correctly set.");
+                "The usage for policy ID " + policy.getPolicyID() + " was correctly set.", policy);
         return cr;
     }
 

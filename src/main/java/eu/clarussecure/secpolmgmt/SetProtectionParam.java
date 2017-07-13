@@ -1,21 +1,18 @@
 package eu.clarussecure.secpolmgmt;
 
 import eu.clarussecure.datamodel.types.AttrType;
-import eu.clarussecure.datamodel.types.ProtectionName;
-import eu.clarussecure.datamodel.types.ProtectionParam;
 import eu.clarussecure.datamodel.types.Module;
 import eu.clarussecure.datamodel.Policy;
 import eu.clarussecure.datamodel.ProtectionAttributeType;
 import eu.clarussecure.datamodel.ProtectionAttributeParameter;
 
-import java.util.Set;
 import java.util.Arrays;
 
 public class SetProtectionParam extends Command {
     private int policyID;
     private AttrType attributeType;
-    private ProtectionName protectionName;
-    private ProtectionParam protectionParam;
+    private String protectionName;
+    private String protectionParam = null;
     private double protectionValue;
 
     public SetProtectionParam(String[] args) throws CommandParserException {
@@ -23,27 +20,32 @@ public class SetProtectionParam extends Command {
     }
 
     @Override
-    public CommandReturn execute(Set<Policy> policies) throws CommandExecutionException {
-        // First, find the policy
-        Policy policy = null;
-
-        for (Policy p : policies)
-            if (p.getPolicyID() == this.policyID)
-                policy = p;
-
-        if (policy == null)
-            throw new CommandExecutionException("The policy with ID " + this.policyID + " could not be found!");
-
-        // Second, create the ProtectionAttribute object
-        // If the Attribute takes a parameter, create the object, otherwise the AttrParam object is not necesary
-        ProtectionAttributeParameter ap = this.protectionName.getsParameter()
-                ? new ProtectionAttributeParameter(this.protectionParam, this.protectionValue) : null;
-        ProtectionAttributeType pa = new ProtectionAttributeType(this.protectionName, this.attributeType, ap);
+    public CommandReturn execute(Policy policy) throws CommandExecutionException {
+        // FIXME - This commands adds a new entry to the attribute types when trying to assign a new param to an existent attribute Type
+        // Implement either a "search" before attaching OR a new command to add a parameter to the ProtectionAttributeType
+        // Verify the given policy ID with the one in the file
+        if (this.policyID != policy.getPolicyID()) {
+            throw new CommandExecutionException("The given policy ID " + this.policyID
+                    + " does not correspond with the policy ID in the file (" + policy.getPolicyID() + ").");
+        }
+        // Second, create the Required objects to be set on the policy's Protection
+        ProtectionAttributeType pa;
+        if (this.protectionParam != null) {
+            // If the Attribute takes a parameter, create the object ProtectionParam and ProtectionAtributeParameter objects
+            ProtectionAttributeParameter protParam = new ProtectionAttributeParameter(this.protectionParam,
+                    this.protectionValue);
+            // Create the ProtectionAttributeType object
+            pa = new ProtectionAttributeType(this.protectionName, this.attributeType, protParam);
+        } else {
+            // Create the ProtectionAttributeType object
+            pa = new ProtectionAttributeType(this.protectionName, this.attributeType);
+        }
 
         // Attach the ProtectionAtttribute to the Protection
         policy.getProtection().addProtectionAttribute(pa);
 
-        CommandReturn cr = new CommandReturn(0, "The Policy ID " + policy.getPolicyID() + " was updated sucessfully");
+        CommandReturn cr = new CommandReturn(0, "The Policy ID " + policy.getPolicyID() + " was updated sucessfully",
+                policy);
         return cr;
     }
 
@@ -75,44 +77,30 @@ public class SetProtectionParam extends Command {
             throw new CommandParserException("The field 'attributeType' was not given and it is required.");
         }
 
-        // Fourth, identify the Protection Name and wheter if it is valid or not for the CLARUS Module of the Policy
+        // Fourth, identify the Protection Name
         Module mod = null;
         try {
-            mod = Main.findPolicy(this.policyID).getProtection().getModule();
-            this.protectionName = ProtectionName.fromString(args[3], mod);
-        } catch (IllegalArgumentException e) {
-            throw new CommandParserException("There was an error idenfitying the Protection Name. Is the Name '"
-                    + args[3] + "' supported for the Protection Module " + mod
-                    + "?\nThe list of supported modules is:\n" + Arrays.toString(ProtectionName.values(mod)));
+            this.protectionName = args[3];
         } catch (IndexOutOfBoundsException e) {
             throw new CommandParserException("The field 'protectionName' was not given and it is required.");
         }
 
-        // There are some Protection names that DO NOT take parameters
-        if (this.protectionName.getsParameter()) {
+        // Optional part of the command
+        // Fifth, get the parameter of the Protection, if any
+        try {
+            this.protectionParam = args[4];
+        } catch (IndexOutOfBoundsException e) {
+            //throw new CommandParserException("The field 'protectionParam' was not given and it is required.");
+        }
 
-            // Fifth, check if the given parameter is valid for the Protection name
-            try {
-                this.protectionParam = ProtectionParam.fromString(args[4], this.protectionName);
-            } catch (IllegalArgumentException e) {
-                throw new CommandParserException(
-                        "There was an error idenfitying the Protection Parameter. Is the Parameter '" + args[4]
-                                + "' supported for the Protection Name " + this.protectionName
-                                + "?\nThe list of supported modules is:\n"
-                                + Arrays.toString(ProtectionParam.values(this.protectionName)));
-            } catch (IndexOutOfBoundsException e) {
-                throw new CommandParserException("The field 'protectionParam' was not given and it is required.");
-            }
-
-            // Lastly, Store the value of the the Param
-            try {
-                this.protectionValue = Double.parseDouble(args[5]);
-            } catch (NumberFormatException e) {
-                throw new CommandParserException(
-                        "There was an error identifying the Parameter Value. Is the Value well formed?");
-            } catch (IndexOutOfBoundsException e) {
-                throw new CommandParserException("The field 'protectionValue' was not given and it is required.");
-            }
+        // Lastly, Store the value of the the parameter
+        try {
+            this.protectionValue = Double.parseDouble(args[5]);
+        } catch (NumberFormatException e) {
+            throw new CommandParserException(
+                    "There was an error identifying the Parameter Value. Is the Value well formed?");
+        } catch (IndexOutOfBoundsException e) {
+            //throw new CommandParserException("The field 'protectionValue' was not given and it is required.");
         }
 
         return true;

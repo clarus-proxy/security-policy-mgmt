@@ -5,8 +5,6 @@ import eu.clarussecure.datamodel.Policy;
 import java.io.InputStream;
 import java.io.IOException;
 
-import java.util.Set;
-
 public class Help extends Command {
     //TODO - Put other data from the command as fields of the object
     private int policyID;
@@ -16,7 +14,7 @@ public class Help extends Command {
     }
 
     @Override
-    public CommandReturn execute(Set<Policy> policies) throws CommandExecutionException {
+    public CommandReturn execute(Policy policy) throws CommandExecutionException {
         // Prepare the output
         String data = "";
 
@@ -32,7 +30,7 @@ public class Help extends Command {
             data = "help not found";
         }
 
-        CommandReturn cr = new CommandReturn(0, data);
+        CommandReturn cr = new CommandReturn(0, data, null);
         return cr;
     }
 

@@ -52,6 +52,10 @@ public class CommandParser {
             case "-h":
                 // Show help
                 throw new ArrayIndexOutOfBoundsException();
+                // AKKA request
+            case "set_protocol_param":
+                com = new SetProtocolParam(command);
+                break;
             default:
                 throw new CommandParserException("Unrecognized command '" + command[0] + "'");
             }
