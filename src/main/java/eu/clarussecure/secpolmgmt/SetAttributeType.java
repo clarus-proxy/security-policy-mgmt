@@ -20,9 +20,9 @@ public class SetAttributeType extends Command {
     @Override
     public CommandReturn execute(Policy policy) throws CommandExecutionException {
         // Verify the given policy ID with the one in the file
-        if (this.policyID != policy.getPolicyID()) {
+        if (this.policyID != policy.getPolicyId()) {
             throw new CommandExecutionException("The given policy ID " + this.policyID
-                    + " does not correspond with the policy ID in the file (" + policy.getPolicyID() + ").");
+                    + " does not correspond with the policy ID in the file (" + policy.getPolicyId() + ").");
         }
         String message = "";
 
@@ -32,7 +32,7 @@ public class SetAttributeType extends Command {
             if (pa.getPath().equals(this.attributePath)) {
                 pa.setAttributeType(this.attributeType);
                 pa.setDataType(this.dataType);
-                message = "Attribute in policy ID " + policy.getPolicyID() + " for path " + pa.getPath()
+                message = "Attribute in policy ID " + policy.getPolicyId() + " for path " + pa.getPath()
                         + " was updated succesfully";
                 updated = true;
             }
@@ -42,7 +42,7 @@ public class SetAttributeType extends Command {
         if (!updated) {
             PolicyAttribute newPA = new PolicyAttribute(this.attributePath, this.attributeType, this.dataType);
             policy.addAttribute(newPA);
-            message = "An attribute for path " + this.attributePath + " in policy " + policy.getPolicyID()
+            message = "An attribute for path " + this.attributePath + " in policy " + policy.getPolicyId()
                     + " was added";
         }
 

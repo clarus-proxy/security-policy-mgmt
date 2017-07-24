@@ -15,9 +15,9 @@ public class SetProtectionModule extends Command {
     @Override
     public CommandReturn execute(Policy policy) throws CommandExecutionException {
         // Verify the given policy ID with the one in the file
-        if (this.policyID != policy.getPolicyID()) {
+        if (this.policyID != policy.getPolicyId()) {
             throw new CommandExecutionException("The given policy ID " + this.policyID
-                    + " does not correspond with the policy ID in the file (" + policy.getPolicyID() + ").");
+                    + " does not correspond with the policy ID in the file (" + policy.getPolicyId() + ").");
         }
 
         // Second, Assign the CLARUS protection Module
@@ -25,7 +25,7 @@ public class SetProtectionModule extends Command {
 
         // Finally, prepare the return info
         CommandReturn cr = new CommandReturn(0,
-                "The Protection module for Policy ID " + policy.getPolicyID() + " was correctly set.", policy);
+                "The Protection module for Policy ID " + policy.getPolicyId() + " was correctly set.", policy);
         return cr;
     }
 

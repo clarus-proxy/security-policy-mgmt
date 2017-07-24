@@ -17,16 +17,16 @@ public class SetDataUsage extends Command {
     @Override
     public CommandReturn execute(Policy policy) throws CommandExecutionException {
         // Verify the given policy ID with the one in the file
-        if (this.policyID != policy.getPolicyID()) {
+        if (this.policyID != policy.getPolicyId()) {
             throw new CommandExecutionException("The given policy ID " + this.policyID
-                    + " does not correspond with the policy ID in the file (" + policy.getPolicyID() + ").");
+                    + " does not correspond with the policy ID in the file (" + policy.getPolicyId() + ").");
         }
 
         // Second, set the data usage
         policy.setDataUsage(this.dataUsage);
 
         CommandReturn cr = new CommandReturn(0,
-                "The usage for policy ID " + policy.getPolicyID() + " was correctly set.", policy);
+                "The usage for policy ID " + policy.getPolicyId() + " was correctly set.", policy);
         return cr;
     }
 

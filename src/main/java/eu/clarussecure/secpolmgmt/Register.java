@@ -4,6 +4,7 @@ import eu.clarussecure.datamodel.Policy;
 import eu.clarussecure.secpolmgmt.dao.CLARUSPolicyDAO;
 
 public class Register extends Command {
+
     private int policyID;
 
     public Register(String[] args) throws CommandParserException {
@@ -15,14 +16,15 @@ public class Register extends Command {
         this.verifyRights("admin");
         // At this point, the user SHOULD be identified and authorized to execute this command
         // Verify the given policy ID with the one in the file
-        if (this.policyID != policy.getPolicyID()) {
+        if (this.policyID != policy.getPolicyId()) {
             throw new CommandExecutionException("The given policy ID " + this.policyID
-                    + " does not correspond with the policy ID in the file (" + policy.getPolicyID() + ").");
+                    + " does not correspond with the policy ID in the file (" + policy.getPolicyId() + ").");
         }
 
-        if (policy == null)
+        if (policy == null) {
             throw new CommandExecutionException(
                     "The policy with ID" + this.policyID + " could not be read from the file!");
+        }
 
         // Validate the policy;
         if (!policy.checkPolicyIntegrity()) {
@@ -33,12 +35,11 @@ public class Register extends Command {
         // NOTE: If a path for the identiy file is present, it will be used to identify the user even if a password was provided.
         // Too many doubts about what "registering" a policy means...
         // Do we need to comunicate the configuration? To whom? Afterwards, does the policy need to be deleted from the file?
-
         CLARUSPolicyDAO dao = CLARUSPolicyDAO.getInstance();
         dao.savePolicy(policy);
         dao.deleteInstance();
 
-        CommandReturn cr = new CommandReturn(0, "The policy ID " + policy.getPolicyID() + " was correctly registered.",
+        CommandReturn cr = new CommandReturn(0, "The policy ID " + policy.getPolicyId() + " was correctly registered.",
                 null);
         return cr;
     }
@@ -46,9 +47,10 @@ public class Register extends Command {
     @Override
     public boolean parseCommandArgs(String[] args) throws CommandParserException {
         // First, sanity check
-        if (!args[0].toLowerCase().equals("register"))
+        if (!args[0].toLowerCase().equals("register")) {
             throw new CommandParserException(
                     "Why a non-'register' command ended up in the 'register' part of the parser?");
+        }
 
         // Second, check that the policyID is present and well-formed
         try {

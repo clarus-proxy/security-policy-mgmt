@@ -9,6 +9,7 @@ import eu.clarussecure.datamodel.ProtectionAttributeParameter;
 import java.util.Arrays;
 
 public class SetProtectionParam extends Command {
+
     private int policyID;
     private AttrType attributeType;
     private String protectionName;
@@ -24,9 +25,9 @@ public class SetProtectionParam extends Command {
         // FIXME - This commands adds a new entry to the attribute types when trying to assign a new param to an existent attribute Type
         // Implement either a "search" before attaching OR a new command to add a parameter to the ProtectionAttributeType
         // Verify the given policy ID with the one in the file
-        if (this.policyID != policy.getPolicyID()) {
+        if (this.policyID != policy.getPolicyId()) {
             throw new CommandExecutionException("The given policy ID " + this.policyID
-                    + " does not correspond with the policy ID in the file (" + policy.getPolicyID() + ").");
+                    + " does not correspond with the policy ID in the file (" + policy.getPolicyId() + ").");
         }
         // Second, create the Required objects to be set on the policy's Protection
         ProtectionAttributeType pa;
@@ -44,7 +45,7 @@ public class SetProtectionParam extends Command {
         // Attach the ProtectionAtttribute to the Protection
         policy.getProtection().addProtectionAttribute(pa);
 
-        CommandReturn cr = new CommandReturn(0, "The Policy ID " + policy.getPolicyID() + " was updated sucessfully",
+        CommandReturn cr = new CommandReturn(0, "The Policy ID " + policy.getPolicyId() + " was updated sucessfully",
                 policy);
         return cr;
     }
@@ -52,9 +53,10 @@ public class SetProtectionParam extends Command {
     @Override
     public boolean parseCommandArgs(String[] args) throws CommandParserException {
         // First, sanity check
-        if (!args[0].toLowerCase().equals("set_protection_param"))
+        if (!args[0].toLowerCase().equals("set_protection_param")) {
             throw new CommandParserException(
                     "Why a non-'set_protection_param' command ended up in the 'set_protection_param' part of the parser?");
+        }
 
         // Second, check that the policyID is present and well-formed
         try {

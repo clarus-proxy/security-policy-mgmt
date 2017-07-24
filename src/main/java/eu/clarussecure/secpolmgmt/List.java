@@ -22,7 +22,6 @@ public class List extends Command {
         // NOTE: If a path for the identiy file is present, it will be used to identify the user even if a password was provided.
         // Too many doubts about what "registering" a policy means...
         // Do they need to comunicate the configuration? To whom? Afterwards, does the policy need to be deleted from the file?
-
         CLARUSPolicyDAO dao = CLARUSPolicyDAO.getInstance();
         Set<Policy> pols = dao.getPolicies();
         dao.deleteInstance();
@@ -36,8 +35,9 @@ public class List extends Command {
     @Override
     public boolean parseCommandArgs(String[] args) throws CommandParserException {
         // First, sanity check
-        if (!args[0].toLowerCase().equals("list"))
+        if (!args[0].toLowerCase().equals("list")) {
             throw new CommandParserException("Why a non-'list' command ended up in the 'list' part of the parser?");
+        }
 
         this.parseCredentials(args);
 
@@ -46,7 +46,7 @@ public class List extends Command {
 
     static public void printPolicies(Set<Policy> policies) throws UnsupportedOperationException {
         for (Policy pol : policies) {
-            System.out.println("ID = " + pol.getPolicyID() + ", name = " + pol.getPolicyName() + ", usage = "
+            System.out.println("ID = " + pol.getPolicyId() + ", name = " + pol.getPolicyName() + ", usage = "
                     + pol.getDataUsage());
 
             System.out.println("\tEndpoint: Protocol Name = " + pol.getEndpoint().getProtocol().getProtocolName()
