@@ -49,6 +49,9 @@ public class CommandParser {
             case "list":
                 com = new List(command);
                 break;
+            case "convert_policy":
+                com = new ConvertPolicy(command);
+                break;
             case "-h":
                 // Show help
                 throw new ArrayIndexOutOfBoundsException();
