@@ -1,0 +1,7 @@
+language: java
+jdk:
+    - openjdk8
+    - oraclejdk8
+install:
+    - git clone https://github.com/clarus-proxy/security-policy-model.git && cd security-policy-model && mvn install && cd ..
+    - git clone https://github.com/clarus-proxy/sample-userlibrary.git && cd sample-userlibrary && mvn install && cd ..

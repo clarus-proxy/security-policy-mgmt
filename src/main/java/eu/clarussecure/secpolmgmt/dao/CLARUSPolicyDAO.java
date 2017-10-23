@@ -128,7 +128,7 @@ public class CLARUSPolicyDAO {
 
         return deleted > 0;
     }
-    
+
     private void processConfigurationFile() throws RuntimeException {
         // Open the file in read-only mode. This will avoid any permission problem
         try {
