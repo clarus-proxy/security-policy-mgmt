@@ -1,7 +1,7 @@
 package eu.clarussecure.secpolmgmt;
 
+import com.sun.org.apache.xml.internal.serialize.LineSeparator;
 import eu.clarussecure.datamodel.Policy;
-import eu.clarussecure.secpolmgmt.dao.CLARUSPolicyDAO;
 import java.io.FileWriter;
 import java.io.IOException;
 import org.jdom2.output.Format;
@@ -18,8 +18,6 @@ public class ConvertPolicy extends Command {
 
     @Override
     public CommandReturn execute(Policy policy) throws CommandExecutionException {
-        this.verifyRights("admin");
-        // At this point, the user SHOULD be identified and authorized to execute this command
         // Verify the given policy ID with the one in the file
         if (this.policyID != policy.getPolicyId()) {
             throw new CommandExecutionException("The given policy ID " + this.policyID
@@ -43,12 +41,13 @@ public class ConvertPolicy extends Command {
         CommandReturn cr;
         try {
             XMLOutputter out = new XMLOutputter();
-            out.setFormat(Format.getPrettyFormat());
+            out.setFormat(Format.getPrettyFormat().setLineSeparator(LineSeparator.Web).setOmitDeclaration(false)
+                    .setOmitEncoding(false));
             out.output(policy.getXMLElement(), new FileWriter(filename));
             cr = new CommandReturn(0, "The policy ID " + policy.getPolicyId() + " was correctly converted to XML.",
-                    null);
+                    policy);
         } catch (IOException e) {
-            cr = new CommandReturn(1, "The file " + this.filename + " could not be writen.", null);
+            cr = new CommandReturn(1, "The file " + this.filename + " could not be writen.", policy);
         }
         return cr;
     }
@@ -65,13 +64,13 @@ public class ConvertPolicy extends Command {
         try {
             this.policyID = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
-            throw new CommandParserException(
-                    "There was an error identifying the policyID. Is the port number well formed?");
+            throw new CommandParserException("There was an error identifying the policyID. Is the number well formed?");
         } catch (IndexOutOfBoundsException e) {
             throw new CommandParserException("The field 'policyID' was not given and it is required.");
         }
 
-        this.parseCredentials(args);
+        // Retrieve the filename to store the policy
+        this.filename = args[2];
 
         return true;
     }

@@ -18,7 +18,7 @@ import java.io.File;
 public class Main {
 
     public static Policy policy = null;
-    public static String filename = "sec-pol-examples/policy.json";
+    public static String filename = "/Users/diegorivera/Dropbox/Montimage/CLARUS/policy.json";
 
     static public void main(String[] args) {
         // Initialization of the Gson library
