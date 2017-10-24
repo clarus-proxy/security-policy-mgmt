@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>eu.clarussecure</groupId>
     <artifactId>CLARUS-SecPolMgmt</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 	<name>Security Policy Management Tool</name>
     <description>Administration tool to handle the security policies within the CLARUS proxy</description>
@@ -53,13 +53,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>CLARUS-DataModel</artifactId>
-            <version>1.0.1</version>
+            <artifactId>CLARUS-UserLibrary</artifactId>
+            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>CLARUS-UserLibrary</artifactId>
-            <version>0.1</version>
+            <artifactId>CLARUS-DataModel</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <properties>
